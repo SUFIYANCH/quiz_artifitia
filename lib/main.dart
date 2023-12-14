@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:quiz_artifitia/views/congrats_1_screen.dart';
 import 'package:quiz_artifitia/views/get_started_screen.dart';
-import 'package:quiz_artifitia/views/home_screen.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quiz_artifitia/providers/provider.dart';
@@ -6,9 +8,11 @@ import 'package:quiz_artifitia/utils/responsive.dart';
 
 class OptionWidget extends ConsumerWidget {
   final int index;
+  final Timer timer;
 
   const OptionWidget({
     super.key,
+    required this.timer,
     required this.index,
   });
 
@@ -48,9 +52,11 @@ class OptionWidget extends ConsumerWidget {
     }
 
     return InkWell(
+      borderRadius: BorderRadius.circular(R.sw(18, context)),
       onTap: isDisabled
           ? null
           : () {
+              timer.cancel();
               ref.read(quizProvider.notifier).selectOption(index);
             },
       child: Container(

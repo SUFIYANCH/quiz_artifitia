@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quiz_artifitia/providers/provider.dart';
 import 'package:quiz_artifitia/utils/app_color.dart';
 import 'package:quiz_artifitia/utils/responsive.dart';
+import 'package:quiz_artifitia/views/congrats_1_screen.dart';
 import 'package:quiz_artifitia/widgets/loading_widget.dart';
 import 'package:quiz_artifitia/widgets/options_widget.dart';
 
@@ -14,11 +16,35 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+  int _timerValue = 60;
+  Timer? _timer;
   @override
   void initState() {
-    super.initState();
-
     ref.read(quizProvider.notifier).getQuestionData();
+    startTimer();
+    super.initState();
+  }
+
+  void startTimer() {
+    const duration = Duration(seconds: 1);
+
+    stopTimer();
+    _timer = Timer.periodic(duration, (Timer timer) {
+      setState(() {
+        _timerValue -= 1;
+      });
+
+      if (_timerValue == 0) {
+        stopTimer();
+        ref.read(quizProvider.notifier).highlightCorrectOption();
+      }
+    });
+  }
+
+  void stopTimer() {
+    if (_timer != null) {
+      _timer!.cancel();
+    }
   }
 
   @override
@@ -46,7 +72,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 SizedBox(
                   height: R.sh(100, context),
                 ),
-                const LoadingWidget(),
+                LoadingWidget(
+                  timervalue: _timerValue,
+                ),
                 SizedBox(
                   height: R.sh(60, context),
                 ),
@@ -60,6 +88,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     shrinkWrap: true,
                     itemBuilder: (context, index) {
                       return OptionWidget(
+                        timer: _timer!,
                         index: index,
                       );
                     },
@@ -84,7 +113,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               borderRadius:
                                   BorderRadius.circular(R.sw(12, context))),
                           backgroundColor: whiteColor),
-                      onPressed: () {},
+                      onPressed: () {
+                        if (ref.watch(quizProvider).currentQuestionIndex ==
+                            ref.watch(quizProvider).questions!.length - 1) {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (ctc) => const Congrats1Screen()));
+                          ref.read(quizProvider.notifier).tryAgain();
+                        } else {
+                          ref.read(quizProvider.notifier).questionincrement();
+                          setState(() {
+                            _timerValue = 60;
+                            startTimer();
+                          });
+                          ref.read(quizProvider.notifier).resetOnNext();
+                        }
+                      },
                       child: Text(
                         "Next",
                         style: TextStyle(
