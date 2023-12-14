@@ -6,11 +6,23 @@ import 'package:quiz_artifitia/utils/responsive.dart';
 import 'package:quiz_artifitia/widgets/loading_widget.dart';
 import 'package:quiz_artifitia/widgets/options_widget.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+
+    ref.read(quizProvider.notifier).getQuestionData();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final questions = ref.watch(quizProvider).questions;
 
     return Scaffold(
@@ -63,19 +75,21 @@ class HomeScreen extends ConsumerWidget {
                 SizedBox(
                   height: R.sh(30, context),
                 ),
-                ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        fixedSize: Size(R.sw(130, context), R.sh(45, context)),
-                        shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(R.sw(12, context))),
-                        backgroundColor: whiteColor),
-                    onPressed: () {},
-                    child: Text(
-                      "Next",
-                      style: TextStyle(
-                          color: primaryColor, fontSize: R.sw(18, context)),
-                    ))
+                if (ref.watch(quizProvider).selectedOption > -1)
+                  ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          fixedSize:
+                              Size(R.sw(130, context), R.sh(45, context)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.circular(R.sw(12, context))),
+                          backgroundColor: whiteColor),
+                      onPressed: () {},
+                      child: Text(
+                        "Next",
+                        style: TextStyle(
+                            color: primaryColor, fontSize: R.sw(18, context)),
+                      ))
               ],
             ),
           ),

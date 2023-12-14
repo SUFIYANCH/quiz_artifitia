@@ -14,28 +14,56 @@ class OptionWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final questionData = ref.watch(quizProvider).questions![index];
+    final questionData = ref
+        .watch(quizProvider)
+        .questions![ref.watch(quizProvider).currentQuestionIndex];
 
-    Color bgcolor = Colors.transparent;
-    if (questionData.options[index].isCorrect) {
+    final isCorrect = questionData.options[index].isCorrect;
+    final selectedOption = ref.watch(quizProvider).selectedOption;
+    final isDisabled = selectedOption > -1;
+    var isHighlighted = false;
+
+    var textColor = Colors.white;
+    if (isDisabled) {
+      textColor = Colors.grey;
+    }
+
+    var bgcolor = Colors.transparent;
+    if (selectedOption == index) {
+      isHighlighted = true;
+      if (isCorrect) {
+        bgcolor = correctColor;
+      } else {
+        bgcolor = wrongColor;
+      }
+    }
+
+    if (isCorrect && selectedOption > -1 && selectedOption != index) {
+      isHighlighted = true;
       bgcolor = correctColor;
-    } else {
-      bgcolor = wrongColor;
+    }
+
+    if (isHighlighted) {
+      textColor = Colors.white;
     }
 
     return InkWell(
-      onTap: () {},
+      onTap: isDisabled
+          ? null
+          : () {
+              ref.read(quizProvider.notifier).selectOption(index);
+            },
       child: Container(
         alignment: Alignment.centerLeft,
         padding: EdgeInsets.only(left: R.sw(20, context)),
         decoration: BoxDecoration(
             color: bgcolor,
-            border: Border.all(color: whiteColor),
+            border: !isHighlighted ? Border.all(color: textColor) : null,
             borderRadius: BorderRadius.circular(R.sw(18, context))),
         height: R.sh(54, context),
         child: Text(
           "${index + 1}. ${questionData.options[index].text}",
-          style: TextStyle(color: whiteColor, fontSize: R.sw(18, context)),
+          style: TextStyle(color: textColor, fontSize: R.sw(18, context)),
         ),
       ),
     );

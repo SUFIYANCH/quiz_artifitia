@@ -31,16 +31,19 @@ class QuizData {
 class QuizNotifier extends Notifier<QuizData> {
   @override
   QuizData build() {
-    _getQuestionData();
-
     return const QuizData(
         currentQuestionIndex: 0, questions: null, selectedOption: -1);
   }
 
-  Future<void> _getQuestionData() async {
+  Future<void> getQuestionData() async {
     state = state.copyWith(questions: (await ApiService().getData()));
+  }
+
+  /// Select option with given index
+  void selectOption(int optionIndex) {
+    state = state.copyWith(selectedOption: optionIndex);
   }
 }
 
 final quizProvider =
-    NotifierProvider.autoDispose<QuizNotifier, QuizData>(() => QuizNotifier());
+    NotifierProvider<QuizNotifier, QuizData>(() => QuizNotifier());
